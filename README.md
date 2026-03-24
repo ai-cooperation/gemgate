@@ -2,7 +2,7 @@
 
 > Zero API Key. Zero Cost. Just a free Google Account.
 
-**[Live Demo](http://43.159.131.124:8760/)** | **$3/month to run AI for an entire class**
+**$3/month to run AI for an entire class** · [Live Demo](http://43.159.131.124:8760/)
 
 GemGate turns a single free Google account into a full multi-modal AI API gateway. Compatible with the OpenAI SDK — drop in your `base_url` and start building.
 
@@ -252,6 +252,8 @@ Video generation follows the same pattern via `POST /api/video/generate`.
 | Vision | 20 | 5 |
 | Video | 3 | 5 |
 | Podcast | 3 | 5 |
+
+> **Note:** These are GemGate's per-key defaults, configurable in `core/api_keys.py`. The actual throughput also depends on Google's own rate limits and policies, which may change without notice. GemGate uses Google's free-tier web services — not official APIs — so availability is subject to Google's terms.
 
 ## Architecture
 
