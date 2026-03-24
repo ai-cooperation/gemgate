@@ -17,16 +17,17 @@ from config import QUOTA_DB
 
 # ── Defaults ──
 
-# Google account global daily limits (shared across ALL keys)
-# These depend on Google's policy and may change without notice.
+# Google FREE account global daily limits (shared across ALL keys)
+# These are observed limits for FREE accounts, NOT Pro/paid.
+# Google may change these without notice.
 GOOGLE_GLOBAL_LIMITS = {
-    "chat": 1000,     # Gemini web: no hard cap observed
-    "image": 100,     # Gemini image (Pro): ~100/day per account
-    "tts": 1000,      # gTTS: no hard cap
-    "vision": 500,    # Gemini vision: no hard cap observed
-    "video": 20,      # NotebookLM Video Overview: ~20/day
-    "podcast": 20,    # NotebookLM Audio Overview: ~20/day
-    "web": 1000,      # Local fetch: no limit
+    "chat": 500,      # Gemini free: no hard cap observed, but quality throttle possible
+    "image": 50,      # Gemini free: ~50 images/day (Pro would be ~100)
+    "tts": 1000,      # gTTS library: no Google account limit (runs locally)
+    "vision": 500,    # Gemini free: shares chat quota
+    "video": 5,       # NotebookLM free: ~5 video overviews/day (Pro: ~20)
+    "podcast": 5,     # NotebookLM free: ~5 audio overviews/day (Pro: ~20)
+    "web": 1000,      # Local HTTP fetch: no Google limit
 }
 
 # Per-key defaults (auto-calculated from global / active keys if set to 0)
