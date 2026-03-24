@@ -113,7 +113,7 @@ sudo systemctl enable --now xvfb gemgate
 
 ### Get an API Key
 
-Visit `http://your-server:8760/` and enter your name to get a key (`gg-xxxx`).
+Visit `http://your-server:8760/` and enter your name to get a key (`gem-xxxx`).
 
 ### OpenAI SDK (Python)
 
@@ -121,7 +121,7 @@ Visit `http://your-server:8760/` and enter your name to get a key (`gg-xxxx`).
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="gg-your-key-here",
+    api_key="gem-your-key-here",
     base_url="http://your-server:8760/v1"
 )
 
@@ -156,7 +156,7 @@ function askAI(prompt) {
   const options = {
     method: "post",
     headers: {
-      "Authorization": "Bearer gg-your-key-here",
+      "Authorization": "Bearer gem-your-key-here",
       "Content-Type": "application/json"
     },
     payload: JSON.stringify({
@@ -174,19 +174,19 @@ function askAI(prompt) {
 ```bash
 # Chat
 curl http://your-server:8760/v1/chat/completions \
-  -H "Authorization: Bearer gg-your-key-here" \
+  -H "Authorization: Bearer gem-your-key-here" \
   -H "Content-Type: application/json" \
   -d '{"model":"gemini","messages":[{"role":"user","content":"Hello!"}]}'
 
 # Image
 curl http://your-server:8760/v1/images/generations \
-  -H "Authorization: Bearer gg-your-key-here" \
+  -H "Authorization: Bearer gem-your-key-here" \
   -H "Content-Type: application/json" \
   -d '{"model":"gemini-image","prompt":"A cute robot"}'
 
 # TTS
 curl http://your-server:8760/v1/audio/speech \
-  -H "Authorization: Bearer gg-your-key-here" \
+  -H "Authorization: Bearer gem-your-key-here" \
   -H "Content-Type: application/json" \
   -d '{"model":"gemini-tts","input":"Hello world"}' \
   -o speech.mp3

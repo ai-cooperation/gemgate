@@ -51,10 +51,10 @@ def init(_key_mgr, _job_queue, _quota, _providers):
 def _auth(authorization: Optional[str]) -> str:
     """Extract and validate API key from Bearer token. Returns key string."""
     if not authorization:
-        raise HTTPException(401, "Missing Authorization header. Use: Bearer gg-xxx")
+        raise HTTPException(401, "Missing Authorization header. Use: Bearer gem-xxx")
     parts = authorization.split()
     if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise HTTPException(401, "Invalid Authorization format. Use: Bearer gg-xxx")
+        raise HTTPException(401, "Invalid Authorization format. Use: Bearer gem-xxx")
     key = parts[1]
     api_key = key_mgr.get_by_key(key)
     if not api_key or not api_key.active:

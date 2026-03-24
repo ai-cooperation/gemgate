@@ -103,8 +103,8 @@ class APIKeyManager:
         if existing:
             return self._row_to_key(existing)
 
-        # Generate key: gg-<random 32 chars>
-        key = f"gg-{secrets.token_hex(16)}"
+        # Generate key: gem-<random 32 chars>
+        key = f"gem-{secrets.token_hex(16)}"
         now = datetime.now().isoformat()
 
         self.db.execute(
