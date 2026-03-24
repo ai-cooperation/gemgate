@@ -2,7 +2,11 @@
 
 > Zero API Key. Zero Cost. Just a free Google Account.
 
+**[Live Demo](http://43.159.131.124:8760/)** | **$3/month to run AI for an entire class**
+
 GemGate turns a single free Google account into a full multi-modal AI API gateway. Compatible with the OpenAI SDK — drop in your `base_url` and start building.
+
+Chat uses **Gemini's latest model** (not downgraded free-tier models like Groq) — production-quality output for teaching and automation.
 
 ## Features
 
@@ -372,6 +376,43 @@ gemgate/
     ├── gemgate.service         # GemGate systemd unit
     └── xvfb.service            # Virtual display systemd unit
 ```
+
+## Why GemGate? — Cost Analysis
+
+**$3/month vs $260/month** for a class of 30 students:
+
+| Capability | Monthly Usage (30 students) | OpenAI API | Gemini API | GemGate |
+|-----------|---------------------------|-----------|-----------|---------|
+| Chat | 9,000 calls | ~$45 | ~$2 | $0 |
+| **Image Generation** | **4,500 images** | **$180** | **$135** | **$0** |
+| TTS | 4,500 calls | ~$14 | ~$2 | $0 |
+| Vision | 4,500 calls | ~$23 | ~$5 | $0 |
+| Podcast | 90 episodes | No API exists | No API exists | $0 |
+| Video Overview | 90 videos | No API exists | No API exists | $0 |
+| **Server Cost** | | — | — | **$3** |
+| **Total** | | **~$260** | **~$144** | **$3** |
+
+### Key Insights
+
+- **Image generation is the biggest cost gap.** A single DALL-E image costs $0.04-0.08. 30 students generating 5 images/day = $180-360/month on OpenAI alone.
+- **Podcast & Video are exclusive.** No commercial API provides NotebookLM's podcast or video overview capabilities.
+- **Chat quality matters.** GemGate uses Gemini's latest model via the web interface — not a downgraded free-tier model. Output quality matches paid API access, unlike free alternatives (e.g., Groq free models have noticeably lower quality).
+
+### Who Is GemGate For?
+
+| Audience | Pain Point | GemGate Value |
+|----------|-----------|---------------|
+| **AI course instructors** | Can't ask students to buy API keys | $3/month covers the entire class |
+| **Workshop / Hackathon organizers** | 50 people, one day, need instant access | Zero onboarding friction |
+| **GAS automation enthusiasts** | Want AI in Google Sheets without a credit card | OpenAI SDK compatible, just paste the URL |
+| **Indie developers** | Prototyping, not ready to pay | Free to build, pay when you ship |
+| **n8n / Make / Zapier users** | Every AI node needs an API key | One `base_url` for everything |
+
+### When NOT to Use GemGate
+
+- **High-concurrency production** — Browser automation has 20-60s latency per request
+- **Chat-only needs** — Gemini API free tier (60 RPM) may suffice
+- **Enterprise SLA requirements** — Google may change their web UI at any time
 
 ## Comparison
 
