@@ -16,7 +16,7 @@ from config import API_KEY
 TRUSTED_PREFIXES = ("100.", "127.0.0.1", "::1")
 
 # Paths that skip auth entirely
-PUBLIC_PATHS = {"/", "/register", "/api/health", "/docs", "/openapi.json", "/favicon.ico"}
+PUBLIC_PATHS = {"/", "/register", "/api/health", "/api/key-stats", "/docs", "/openapi.json", "/favicon.ico"}
 PUBLIC_PREFIXES = ("/v1/", "/my/", "/admin/")
 
 

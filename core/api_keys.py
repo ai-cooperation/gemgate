@@ -27,6 +27,7 @@ DEFAULT_LIMITS = {
     "web": 30,        # /v1/web/fetch per day
 }
 DEFAULT_RPM = 5  # requests per minute per key
+DEFAULT_TTL_HOURS = 24  # keys auto-expire after 24 hours (0 = never expire)
 
 
 @dataclass
@@ -35,6 +36,7 @@ class APIKey:
     key: str
     student_name: str
     created_at: str
+    expires_at: Optional[str]
     active: bool
     daily_chat: int
     daily_image: int
@@ -61,6 +63,7 @@ class APIKeyManager:
                 key TEXT UNIQUE NOT NULL,
                 student_name TEXT NOT NULL,
                 created_at TEXT NOT NULL,
+                expires_at TEXT,
                 active INTEGER DEFAULT 1,
                 daily_chat INTEGER DEFAULT 50,
                 daily_image INTEGER DEFAULT 10,
@@ -95,24 +98,29 @@ class APIKeyManager:
         if not student_name or len(student_name) > 50:
             raise ValueError("Name must be 1-50 characters")
 
-        # Check if name already exists
+        # Check if name already has an active, non-expired key
         existing = self.db.execute(
             "SELECT * FROM api_keys WHERE student_name = ? AND active = 1",
             (student_name,),
         ).fetchone()
         if existing:
-            return self._row_to_key(existing)
+            key_obj = self._row_to_key(existing)
+            if not self._is_expired(key_obj):
+                return key_obj
+            # Expired — deactivate old key, create new one
+            self.deactivate(existing["key"])
 
         # Generate key: gem-<random 32 chars>
         key = f"gem-{secrets.token_hex(16)}"
-        now = datetime.now().isoformat()
+        now = datetime.now()
+        expires = (now + timedelta(hours=DEFAULT_TTL_HOURS)).isoformat() if DEFAULT_TTL_HOURS > 0 else None
 
         self.db.execute(
             """INSERT INTO api_keys
-               (key, student_name, created_at, daily_chat, daily_image,
+               (key, student_name, created_at, expires_at, daily_chat, daily_image,
                 daily_tts, daily_vision, daily_video, daily_podcast, daily_web, rpm)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (key, student_name, now,
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (key, student_name, now.isoformat(), expires,
              DEFAULT_LIMITS["chat"], DEFAULT_LIMITS["image"],
              DEFAULT_LIMITS["tts"], DEFAULT_LIMITS["vision"],
              DEFAULT_LIMITS["video"], DEFAULT_LIMITS["podcast"],
@@ -120,6 +128,31 @@ class APIKeyManager:
         )
         self.db.commit()
         return self.get_by_key(key)
+
+    def _is_expired(self, api_key: "APIKey") -> bool:
+        """Check if a key has expired."""
+        if not api_key.expires_at:
+            return False
+        try:
+            exp = datetime.fromisoformat(api_key.expires_at)
+            return datetime.now() > exp
+        except (ValueError, TypeError):
+            return False
+
+    def get_active_count(self) -> int:
+        """Return count of active, non-expired keys."""
+        self._cleanup_expired()
+        row = self.db.execute("SELECT COUNT(*) FROM api_keys WHERE active = 1").fetchone()
+        return row[0] if row else 0
+
+    def _cleanup_expired(self):
+        """Deactivate all expired keys."""
+        now = datetime.now().isoformat()
+        self.db.execute(
+            "UPDATE api_keys SET active = 0 WHERE active = 1 AND expires_at IS NOT NULL AND expires_at < ?",
+            (now,),
+        )
+        self.db.commit()
 
     # ── Lookup ──
 
@@ -161,6 +194,9 @@ class APIKeyManager:
             return False, "Invalid API key"
         if not api_key.active:
             return False, "API key is deactivated"
+        if self._is_expired(api_key):
+            self.deactivate(key)
+            return False, "API key has expired (24h TTL)"
 
         # RPM check
         now = time.time()
@@ -269,11 +305,18 @@ class APIKeyManager:
         self.db.commit()
 
     def _row_to_key(self, row) -> APIKey:
+        # Handle both old DB (no expires_at) and new DB
+        try:
+            expires_at = row["expires_at"]
+        except (IndexError, KeyError):
+            expires_at = None
+
         return APIKey(
             id=row["id"],
             key=row["key"],
             student_name=row["student_name"],
             created_at=row["created_at"],
+            expires_at=expires_at,
             active=bool(row["active"]),
             daily_chat=row["daily_chat"],
             daily_image=row["daily_image"],

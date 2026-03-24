@@ -60,6 +60,14 @@ async def register(req: RegisterRequest, request: Request):
     )
 
 
+# ── Stats ──
+
+@router.get("/api/key-stats")
+async def key_stats():
+    """Return active key count for the landing page."""
+    return {"active_keys": key_mgr.get_active_count()}
+
+
 # ── Student Usage ──
 
 @router.get("/my/{key}")
@@ -252,9 +260,16 @@ LANDING_HTML = r"""<!DOCTYPE html>
 
   <!-- Registration -->
   <div class="card" id="register-card">
-    <h2>🔑 取得你的 API Key</h2>
+    <h2 style="display:flex; justify-content:space-between; align-items:center;">
+      🔑 取得你的 API Key
+      <span id="active-count" style="font-size:0.8rem; font-weight:400; color:var(--muted);
+            background:var(--bg); padding:0.2rem 0.7rem; border-radius:999px; border:1px solid var(--border);">
+        載入中...
+      </span>
+    </h2>
     <p style="color:var(--muted); font-size:0.9rem; margin-bottom:1rem;">
       輸入你的姓名或學號，即可取得免費 API Key。完全相容 OpenAI SDK。
+      <br><span style="color:var(--yellow); font-size:0.8rem;">Key 有效期 24 小時，過期後重新申請即可。</span>
     </p>
     <div class="input-row">
       <input type="text" id="student-name" placeholder="輸入姓名或學號" maxlength="50" />
@@ -434,6 +449,13 @@ function copyKey() {
   btn.textContent = 'Copied!';
   setTimeout(() => btn.textContent = 'Copy', 1500);
 }
+
+// Load active key count
+fetch('/api/key-stats').then(r => r.json()).then(d => {
+  document.getElementById('active-count').textContent = d.active_keys + ' 把 Key 使用中';
+}).catch(() => {
+  document.getElementById('active-count').textContent = '';
+});
 
 function switchTab(id) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
