@@ -1,0 +1,17 @@
+[Unit]
+Description=GemGate - Google AI Gateway
+After=network.target xvfb.service
+Requires=xvfb.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/gemgate
+Environment=DISPLAY=:99
+Environment=GEMGATE_HEADLESS=false
+ExecStart=/opt/gemgate/venv/bin/python3 /opt/gemgate/main.py
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
