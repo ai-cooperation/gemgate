@@ -396,7 +396,7 @@ curl {{BASE_URL}}/v1/images/generations \
       <tr><td>AI 對話</td><td>~500</td><td id="lim-chat">-</td><td>5</td></tr>
       <tr><td>圖片生成</td><td>~100</td><td id="lim-image">-</td><td>5</td></tr>
       <tr><td>語音合成</td><td>無限制 (本地)</td><td id="lim-tts">-</td><td>5</td></tr>
-      <tr><td>圖片理解</td><td>~500</td><td id="lim-vision">-</td><td>5</td></tr>
+      <tr><td>圖片理解</td><td>~10</td><td id="lim-vision">-</td><td>5</td></tr>
       <tr><td>影片生成</td><td>~10</td><td id="lim-video">-</td><td>5</td></tr>
       <tr><td>Podcast</td><td>~10</td><td id="lim-podcast">-</td><td>5</td></tr>
     </table>

@@ -26,7 +26,7 @@ GOOGLE_GLOBAL_LIMITS = {
     "chat": 500,      # Gemini free: no hard daily cap observed
     "image": 100,     # Gemini free: 100 images/day (Nano Banana model)
     "tts": 1000,      # gTTS library: runs locally, no Google account limit
-    "vision": 500,    # Gemini free: shares chat quota
+    "vision": 10,     # Gemini free: ~10 image uploads/day
     "video": 10,      # NotebookLM free: ~3-10 video overviews/day
     "podcast": 10,    # NotebookLM free: ~3-10 audio overviews/day
     "web": 1000,      # Local HTTP fetch: no Google limit
