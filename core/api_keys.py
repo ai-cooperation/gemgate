@@ -19,14 +19,16 @@ from config import QUOTA_DB
 
 # Google FREE account global daily limits (shared across ALL keys)
 # These are observed limits for FREE accounts, NOT Pro/paid.
-# Google may change these without notice.
+# Google may change these without notice. Last verified: 2026-03.
+# Sources: https://blog.laozhang.ai/en/posts/gemini-image-generation-free-limit-2026
+#           https://elephas.app/blog/notebooklm-source-limits
 GOOGLE_GLOBAL_LIMITS = {
-    "chat": 500,      # Gemini free: no hard cap observed, but quality throttle possible
-    "image": 50,      # Gemini free: ~50 images/day (Pro would be ~100)
-    "tts": 1000,      # gTTS library: no Google account limit (runs locally)
+    "chat": 500,      # Gemini free: no hard daily cap observed
+    "image": 100,     # Gemini free: 100 images/day (Nano Banana model)
+    "tts": 1000,      # gTTS library: runs locally, no Google account limit
     "vision": 500,    # Gemini free: shares chat quota
-    "video": 5,       # NotebookLM free: ~5 video overviews/day (Pro: ~20)
-    "podcast": 5,     # NotebookLM free: ~5 audio overviews/day (Pro: ~20)
+    "video": 10,      # NotebookLM free: ~3-10 video overviews/day
+    "podcast": 10,    # NotebookLM free: ~3-10 audio overviews/day
     "web": 1000,      # Local HTTP fetch: no Google limit
 }
 
