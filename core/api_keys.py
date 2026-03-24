@@ -17,14 +17,27 @@ from config import QUOTA_DB
 
 # ── Defaults ──
 
+# Google account global daily limits (shared across ALL keys)
+# These depend on Google's policy and may change without notice.
+GOOGLE_GLOBAL_LIMITS = {
+    "chat": 1000,     # Gemini web: no hard cap observed
+    "image": 100,     # Gemini image (Pro): ~100/day per account
+    "tts": 1000,      # gTTS: no hard cap
+    "vision": 500,    # Gemini vision: no hard cap observed
+    "video": 20,      # NotebookLM Video Overview: ~20/day
+    "podcast": 20,    # NotebookLM Audio Overview: ~20/day
+    "web": 1000,      # Local fetch: no limit
+}
+
+# Per-key defaults (auto-calculated from global / active keys if set to 0)
 DEFAULT_LIMITS = {
-    "chat": 50,       # /v1/chat/completions per day
-    "image": 10,      # /v1/images/generations per day
-    "tts": 20,        # /v1/audio/speech per day
-    "vision": 20,     # /v1/chat/completions with image per day
-    "video": 3,       # /v1/videos/generations per day
-    "podcast": 3,     # /v1/audio/podcasts per day
-    "web": 30,        # /v1/web/fetch per day
+    "chat": 0,        # 0 = auto-split from GOOGLE_GLOBAL_LIMITS
+    "image": 0,
+    "tts": 0,
+    "vision": 0,
+    "video": 0,
+    "podcast": 0,
+    "web": 0,
 }
 DEFAULT_RPM = 5  # requests per minute per key
 DEFAULT_TTL_HOURS = 24  # keys auto-expire after 24 hours (0 = never expire)
@@ -275,7 +288,7 @@ class APIKeyManager:
     # ── Internals ──
 
     def _get_daily_limit(self, api_key: APIKey, endpoint: str) -> int:
-        mapping = {
+        per_key = {
             "chat": api_key.daily_chat,
             "image": api_key.daily_image,
             "tts": api_key.daily_tts,
@@ -284,7 +297,19 @@ class APIKeyManager:
             "podcast": api_key.daily_podcast,
             "web": api_key.daily_web,
         }
-        return mapping.get(endpoint, 10)
+        val = per_key.get(endpoint, 10)
+        if val > 0:
+            return val
+
+        # Auto-split: global limit / active keys (minimum 1)
+        global_limit = GOOGLE_GLOBAL_LIMITS.get(endpoint, 100)
+        active = max(1, self.get_active_count())
+        return max(1, global_limit // active)
+
+    def get_per_key_limits(self) -> dict:
+        """Return current per-key limits (for landing page display)."""
+        active = max(1, self.get_active_count())
+        return {ep: max(1, gl // active) for ep, gl in GOOGLE_GLOBAL_LIMITS.items()}
 
     def _get_daily_usage(self, key: str, endpoint: str) -> int:
         today = datetime.now().strftime("%Y-%m-%d")

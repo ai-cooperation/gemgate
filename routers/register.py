@@ -64,8 +64,11 @@ async def register(req: RegisterRequest, request: Request):
 
 @router.get("/api/key-stats")
 async def key_stats():
-    """Return active key count for the landing page."""
-    return {"active_keys": key_mgr.get_active_count()}
+    """Return active key count + current per-key limits for the landing page."""
+    return {
+        "active_keys": key_mgr.get_active_count(),
+        "limits": key_mgr.get_per_key_limits(),
+    }
 
 
 # ── Student Usage ──
@@ -385,15 +388,21 @@ curl {{BASE_URL}}/v1/images/generations \
   <!-- Quotas -->
   <div class="card">
     <h2>📊 每日限額（每把 Key）</h2>
+    <p style="color:var(--yellow); font-size:0.8rem; margin-bottom:0.75rem;">
+      限額依 Google 帳號全局額度自動均分，使用人數越多每人分配越少。
+    </p>
     <table>
-      <tr><th>功能</th><th>每日上限</th><th>每分鐘上限</th></tr>
-      <tr><td>AI 對話</td><td>50 次</td><td>5</td></tr>
-      <tr><td>圖片生成</td><td>10 次</td><td>5</td></tr>
-      <tr><td>語音合成</td><td>20 次</td><td>5</td></tr>
-      <tr><td>圖片理解</td><td>20 次</td><td>5</td></tr>
-      <tr><td>影片生成</td><td>3 次</td><td>5</td></tr>
-      <tr><td>Podcast</td><td>3 次</td><td>5</td></tr>
+      <tr><th>功能</th><th>Google 全局上限</th><th>你的每日上限</th><th>RPM</th></tr>
+      <tr><td>AI 對話</td><td>~1000</td><td id="lim-chat">-</td><td>5</td></tr>
+      <tr><td>圖片生成</td><td>~100</td><td id="lim-image">-</td><td>5</td></tr>
+      <tr><td>語音合成</td><td>~1000</td><td id="lim-tts">-</td><td>5</td></tr>
+      <tr><td>圖片理解</td><td>~500</td><td id="lim-vision">-</td><td>5</td></tr>
+      <tr><td>影片生成</td><td>~20</td><td id="lim-video">-</td><td>5</td></tr>
+      <tr><td>Podcast</td><td>~20</td><td id="lim-podcast">-</td><td>5</td></tr>
     </table>
+    <p style="color:var(--muted); font-size:0.75rem; margin-top:0.5rem;">
+      實際可用量取決於 Google 政策，可能隨時變動。以上為觀察值，非官方保證。
+    </p>
   </div>
 
   <div class="footer">
@@ -450,9 +459,15 @@ function copyKey() {
   setTimeout(() => btn.textContent = 'Copy', 1500);
 }
 
-// Load active key count
+// Load active key count + limits
 fetch('/api/key-stats').then(r => r.json()).then(d => {
   document.getElementById('active-count').textContent = d.active_keys + ' 把 Key 使用中';
+  if (d.limits) {
+    for (const [ep, val] of Object.entries(d.limits)) {
+      const el = document.getElementById('lim-' + ep);
+      if (el) el.textContent = val + ' 次';
+    }
+  }
 }).catch(() => {
   document.getElementById('active-count').textContent = '';
 });
